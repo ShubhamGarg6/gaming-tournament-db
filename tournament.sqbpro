@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="tournament.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="1"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1597"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="Game" custom_title="0" dock_id="2" table="4,4:mainGame"/><dock_state state="000000ff00000000fd00000001000000020000030200000297fc0100000002fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500320100000000000003020000010100ffffff0000027e0000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Game" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="64"/><column index="2" value="87"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">-- =========================
+-- Online Gaming Tournament Management System
+-- SQL Code
+-- =========================
+
+-- Drop existing tables first
+DROP TABLE IF EXISTS Score;
+DROP TABLE IF EXISTS Match;
+DROP TABLE IF EXISTS Player;
+DROP TABLE IF EXISTS Tournament;
+DROP TABLE IF EXISTS Team;
+DROP TABLE IF EXISTS Game;
+
+-- =========================
+-- 1. CREATE TABLES
+-- =========================
+
+CREATE TABLE Team (
+    team_id INTEGER PRIMARY KEY,
+    team_name TEXT NOT NULL
+);
+
+CREATE TABLE Player (
+    player_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    team_id INTEGER,
+    FOREIGN KEY (team_id) REFERENCES Team(team_id)
+);
+
+CREATE TABLE Game (
+    game_id INTEGER PRIMARY KEY,
+    game_name TEXT NOT NULL
+);
+
+CREATE TABLE Tournament (
+    tournament_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    game_id INTEGER,
+    FOREIGN KEY (game_id) REFERENCES Game(game_id)
+);
+
+CREATE TABLE Match (
+    match_id INTEGER PRIMARY KEY,
+    tournament_id INTEGER,
+    team1_id INTEGER,
+    team2_id INTEGER,
+    match_date TEXT,
+    FOREIGN KEY (tournament_id) REFERENCES Tournament(tournament_id),
+    FOREIGN KEY (team1_id) REFERENCES Team(team_id),
+    FOREIGN KEY (team2_id) REFERENCES Team(team_id)
+);
+
+CREATE TABLE Score (
+    score_id INTEGER PRIMARY KEY,
+    match_id INTEGER,
+    team_id INTEGER,
+    points INTEGER,
+    FOREIGN KEY (match_id) REFERENCES Match(match_id),
+    FOREIGN KEY (team_id) REFERENCES Team(team_id)
+);
+
+-- =========================
+-- 2. INSERT SAMPLE DATA
+-- =========================
+
+INSERT INTO Team (team_id, team_name) VALUES
+(1, 'Alpha'),
+(2, 'Beta'),
+(3, 'Gamma');
+
+INSERT INTO Player (player_id, name, email, team_id) VALUES
+(1, 'John', 'john@mail.com', 1),
+(2, 'Mike', 'mike@mail.com', 2),
+(3, 'Alex', 'alex@mail.com', 1),
+(4, 'David', 'david@mail.com', 3);
+
+INSERT INTO Game (game_id, game_name) VALUES
+(1, 'Valorant'),
+(2, 'FIFA 24');
+
+INSERT INTO Tournament (tournament_id, name, game_id) VALUES
+(1, 'Winter Cup', 1),
+(2, 'Spring Championship', 2);
+
+INSERT INTO Match (match_id, tournament_id, team1_id, team2_id, match_date) VALUES
+(1, 1, 1, 2, '2026-03-20'),
+(2, 2, 2, 3, '2026-03-25');
+
+INSERT INTO Score (score_id, match_id, team_id, points) VALUES
+(1, 1, 1, 13),
+(2, 1, 2, 10),
+(3, 2, 2, 2),
+(4, 2, 3, 1);
+
+-- =========================
+-- 3. SELECT QUERIES
+-- =========================
+
+SELECT * FROM Team;
+SELECT * FROM Player;
+SELECT * FROM Game;
+SELECT * FROM Tournament;
+SELECT * FROM Match;
+SELECT * FROM Score;
+
+-- Show players with their team names
+SELECT Player.player_id, Player.name, Player.email, Team.team_name
+FROM Player
+JOIN Team ON Player.team_id = Team.team_id;
+
+-- Show tournament with game name
+SELECT Tournament.tournament_id, Tournament.name, Game.game_name
+FROM Tournament
+JOIN Game ON Tournament.game_id = Game.game_id;
+
+-- Show match details
+SELECT Match.match_id, Tournament.name AS tournament_name,
+       T1.team_name AS team1, T2.team_name AS team2, Match.match_date
+FROM Match
+JOIN Tournament ON Match.tournament_id = Tournament.tournament_id
+JOIN Team T1 ON Match.team1_id = T1.team_id
+JOIN Team T2 ON Match.team2_id = T2.team_id;
+
+-- Show scores with team names
+SELECT Score.score_id, Score.match_id, Team.team_name, Score.points
+FROM Score
+JOIN Team ON Score.team_id = Team.team_id;
+
+-- =========================
+-- 4. UPDATE QUERY
+-- =========================
+
+UPDATE Player
+SET name = 'Alex Updated', email = 'alexupdated@mail.com'
+WHERE player_id = 3;
+
+-- =========================
+-- 5. DELETE QUERY
+-- =========================
+
+DELETE FROM Player
+WHERE player_id = 4;</sql><current_tab id="0"/></tab_sql></sqlb_project>
